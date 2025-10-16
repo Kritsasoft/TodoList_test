@@ -167,23 +167,10 @@ export default function TodoApp() {
           </button>
         </div>
 
-        <div className={`p-3 border-t ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`w-full px-3 py-2 rounded-md transition-colors flex items-center gap-2 text-sm ${
-              darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {darkMode ? '☀️' : '🌙'}
-            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-        </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Top Navigation Bar */}
         <div className={`h-14 flex items-center justify-between px-6 border-b ${
           darkMode ? 'border-gray-800' : 'border-gray-200'
         }`}>
@@ -201,6 +188,16 @@ export default function TodoApp() {
           </div>
 
           <div className="flex items-center gap-3">
+            <div className={`p-3 border-t ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`w-full px-3 py-2 rounded-md transition-colors flex items-center gap-2 text-sm ${darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+              >
+                {darkMode ? '☀️' : '🌙'}
+                <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+            </div>
             <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               {getCurrentDate()}
             </span>
