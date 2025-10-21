@@ -11,4 +11,5 @@ npm run dev
 
 # สิ่งที่อยากแก้ไข
 - UI of app 
-- Add the 
+- Add the time duration of task
+- 
