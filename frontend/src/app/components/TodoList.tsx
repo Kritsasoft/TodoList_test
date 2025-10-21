@@ -5,8 +5,8 @@ import { Todo } from '@/app/types/todo';
 type TodoListProps = {
   todos: Todo[];
   darkMode: boolean;
-  onToggleComplete: (id: string) => void;
-  onDelete: (id: string) => void;
+  onToggleComplete: (id: string) => void; 
+  onDelete: (id: string) => void; 
 };
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -45,7 +45,11 @@ export default function TodoList({
     <div className="space-y-2">
       {todos.map((todo) => {
         const colors = darkMode ? TYPE_COLORS_DARK[todo.type] : TYPE_COLORS[todo.type];
-        
+        const createdTime = new Date(todo.createdAt).toLocaleTimeString([], {
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+
         return (
           <div
             key={todo.id}
@@ -54,7 +58,7 @@ export default function TodoList({
             }`}
           >
             <div
-              onClick={() => onToggleComplete((todo.id))}
+              onClick={() => onToggleComplete(todo.id)} 
               className="cursor-pointer pt-0.5"
             >
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
@@ -72,7 +76,7 @@ export default function TodoList({
               </div>
             </div>
             
-            <div className="flex-1 cursor-pointer min-w-0" onClick={() => onToggleComplete((todo.id))}>
+            <div className="flex-1 cursor-pointer min-w-0" onClick={() => onToggleComplete(todo.id)}> 
               <div className="flex items-center gap-2 mb-1">
                 <p className={`text-base break-words ${
                   todo.completed 
@@ -82,13 +86,20 @@ export default function TodoList({
                   {todo.text}
                 </p>
               </div>
-              <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${colors.bg} ${colors.text}`}>
-                {todo.type}
-              </span>
+              
+              <div className="flex items-center gap-3">
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${colors.bg} ${colors.text}`}>
+                  {todo.type}
+                </span>
+                <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {createdTime}
+                </span>
+              </div>
+
             </div>
 
             <button
-              onClick={() => onDelete((todo.id))}
+              onClick={() => onDelete(todo.id)}
               className={`opacity-0 group-hover:opacity-100 p-1.5 rounded transition-all ${
                 darkMode 
                   ? 'hover:bg-gray-800 text-gray-500 hover:text-gray-300' 

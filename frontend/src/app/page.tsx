@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Sidebar from './components/sidebar';
+import Calendar from './components/calendar';
 import AddTodoModal from './components/AddTodoModal';
 import TodoList from './components/TodoList';
 import { Todo, TodoType } from './types/todo';
@@ -13,6 +14,7 @@ export default function TodoApp() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedDate, setSelectedDate] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     setMounted(true);
@@ -73,6 +75,18 @@ export default function TodoApp() {
     return todos.filter(todo => todo.date === date).length;
   };
 
+  const getFilteredTodos = () => {
+    const todosForDate = getTodosForDate(selectedDate);
+    
+    if (filter === 'done') {
+      return todosForDate.filter(todo => todo.completed);
+    }
+    if (filter === 'inProgress') {
+      return todosForDate.filter(todo => !todo.completed);
+    }
+    return todosForDate; 
+  };
+
   const formatSelectedDate = () => {
     const date = new Date(selectedDate);
     return date.toLocaleDateString('en-US', { 
@@ -84,6 +98,13 @@ export default function TodoApp() {
   };
 
   const todosForSelectedDate = getTodosForDate(selectedDate);
+  const filteredTodos = getFilteredTodos();
+
+  const todoStats = {
+    all: todosForSelectedDate.length,
+    completed: todosForSelectedDate.filter(t => t.completed).length,
+    inProgress: todosForSelectedDate.filter(t => !t.completed).length
+  };
 
   if (!mounted) return null;
 
@@ -94,15 +115,14 @@ export default function TodoApp() {
         darkMode={darkMode}
         sidebarOpen={sidebarOpen}
         selectedDate={selectedDate}
-        onDateSelect={setSelectedDate}
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        filter={filter}
+        onFilterChange={setFilter}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
-        getTodoCountByDate={getTodoCountByDate}
+        todoStats={todoStats}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Top Bar */}
+        
         <div className={`h-14 flex items-center justify-between px-6 border-b ${
           darkMode ? 'border-gray-800' : 'border-gray-200'
         }`}>
@@ -116,53 +136,66 @@ export default function TodoApp() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`px-3 py-2 rounded-md transition-colors flex gap-2 text-sm ${darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-            >
-              {darkMode ? '☀️' : '🌙'}
-              <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-            </button>
-
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`px-3 py-2 rounded-md transition-colors flex gap-2 text-sm ${darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+          >
+            {darkMode ? '☀️' : '🌙'}
+            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
 
           <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             {formatSelectedDate()}
           </span>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-8 py-12">
+          <div className="max-w-5xl mx-auto px-8 py-8">
             
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className={`text-4xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Tasks
-                </h1>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {todosForSelectedDate.length} {todosForSelectedDate.length === 1 ? 'task' : 'tasks'}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-lg"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add Task
-              </button>
+            <div className="mb-8">
+              <Calendar
+                darkMode={darkMode}
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+                getTodoCountByDate={getTodoCountByDate}
+              />
             </div>
 
-            <TodoList
-              todos={todosForSelectedDate}
-              darkMode={darkMode}
-              onToggleComplete={toggleComplete}
-              onDelete={deleteTodo}
-            />
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Tasks
+                  </h1>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {filteredTodos.length} {filteredTodos.length === 1 ? 'task' : 'tasks'}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Add New Task</span>
+                </button>
+              </div>
+
+              <div className={`rounded-lg ${
+                darkMode ? 'bg-[#202020]' : 'bg-white border border-gray-200'
+              }`}>
+                <TodoList
+                  todos={filteredTodos}
+                  darkMode={darkMode}
+                  onToggleComplete={toggleComplete}
+                  onDelete={deleteTodo}
+                />
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
